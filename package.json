@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "deploy": "gh-pages -d dist",
     "gen": "pnpm gen:data && pnpm gen:index",
-    "gen:data": "python ./data/process.py",
+    "gen:data": "python3 ./data/process.py",
     "gen:index": "node ./data/generate_fuse_index.js"
   },
   "dependencies": {
