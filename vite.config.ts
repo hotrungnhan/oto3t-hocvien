@@ -12,5 +12,5 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: '/hoc-vien-oto-3t/', // Set to your repo name
+  base: '/oto3t-hocvien/', // Set to your repo name
 })
