@@ -26,40 +26,23 @@ column_info = {
 
 combined_dfs = []
 
-# Process the first PDF (pdf[0])
-if len(dfs) > 0:
-    pdf = dfs[0].copy()
-    pdf = pdf.iloc[2:]  # Remove rows 0 and 1
-    pdf.columns = list(column_info.keys())[:len(pdf.columns)] # Rename columns by index
+# Process and combine all PDFs
+for i, pdf in enumerate(dfs):
+    if i == 0:
+        pdf = pdf.iloc[2:]  # Remove rows 0 and 1 for the first PDF
+    pdf.columns = list(column_info.keys())[:len(pdf.columns)]  # Rename columns by index
+    for col_name, (col_type, _) in column_info.items():
+        if col_name in pdf.columns:
+            if col_type == "datetime64[D]":
+                pdf.loc[:, col_name] = pd.to_datetime(pdf[col_name], format="%d/%m/%Y", errors='coerce')
+            elif col_type == "int":
+                pdf.loc[:, col_name] = pd.to_numeric(pdf[col_name], errors='coerce').astype('Int64')  # Nullable int
+            else:
+                pdf.loc[:, col_name] = pdf[col_name].astype(col_type)
     combined_dfs.append(pdf)
 
-
-for pdf in dfs[1:]:
-    pdf = pdf[list(column_info.keys())]
-    combined_dfs.append(pdf)
-
-final_df_list = []
-for pdf in combined_dfs:
-  # Force cast the type of each column
-  for col_name, (col_type, new_col_name) in column_info.items():
-    if col_name in pdf.columns:
-        if col_type == "datetime64[D]":
-            try:
-                pdf[col_name] = pd.to_datetime(pdf[col_name], format="%d/%m/%Y", errors='coerce')
-            except ValueError:
-                print("Invalid date format encountered.")
-
-        elif col_type == "int":
-            try:
-              pdf[col_name] = pd.to_numeric(pdf[col_name], errors='coerce').astype('Int64') # Use nullable int type
-            except ValueError:
-              print(f"Error converting {col_name} to int")
-        else:
-            pdf[col_name] = pdf[col_name].astype(col_type)
-final_df_list.append(pdf)
-
-
-combined_dfs = pd.concat(final_df_list)
+# Concatenate all processed DataFrames
+combined_dfs = pd.concat(combined_dfs, ignore_index=True)
 
 # Set 'TT' as the index
 combined_dfs = combined_dfs.set_index('TT')
