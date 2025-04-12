@@ -8,7 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "gh-pages -d dist"
+    "deploy": "gh-pages -d dist",
+    "gen": "pnpm gen:data && pnpm gen:index",
+    "gen:data": "python ./data/process.py",
+    "gen:index": "node ./data/generate_fuse_index.js"
   },
   "dependencies": {
     "@tanstack/react-table": "^8.21.2",

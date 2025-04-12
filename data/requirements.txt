@@ -1,0 +1,4 @@
+numpy
+pandas
+tabula-py
+jpype1
