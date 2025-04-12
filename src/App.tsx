@@ -1,67 +1,93 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Fuse from "fuse.js";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-	Table,
-	TableBody,
-	TableCell,
-	TableHead,
-	TableHeader,
-	TableRow,
-} from "@/components/ui/table";
-import { useVirtualizer } from "@tanstack/react-virtual";
 
 import { updated_at } from "@/assets/metadata.json";
+import { DataTable } from "./components/ui/virtualize_table";
+import { ColumnDef } from "@tanstack/react-table";
+import { useDebounce } from "use-debounce";
+import data_index from "@/assets/output.index.json";
 import data from "@/assets/output.csv";
 
+const columns: ColumnDef<(typeof data)[0]>[] = [
+	{
+		header: "Name",
+		accessorKey: "name",
+		minSize: 300,
+	},
+	{
+		header: "Gender",
+		accessorKey: "gender",
+		maxSize: 80,
+	},
+	{
+		header: "Nationality",
+		accessorKey: "nationality",
+	},
+	{
+		header: "Class",
+		accessorKey: "class",
+	},
+	{
+		header: "License Number",
+		accessorKey: "license_number",
+	},
+	{
+		header: "Class Code",
+		accessorKey: "class_code",
+	},
+	{
+		header: "Start Date",
+		accessorKey: "start_date",
+	},
+	{
+		header: "End Date",
+		accessorKey: "end_date",
+	},
+];
 export default function App() {
 	const [search, setSearch] = useState("");
+	const [searchDebounceValue] = useDebounce(search, 200);
+
 	const [results, setResults] = useState(data);
-
-	// The scrollable element for your list
-	const parentRef = useRef(null);
-
-	const dataCount = useMemo(() => results.length, [results]);
-	// The virtualizer
-	const rowVirtualizer = useVirtualizer({
-		count: dataCount,
-		getScrollElement: () => parentRef.current,
-		estimateSize: () => 35,
-	});
 
 	const fuse = useMemo(
 		() =>
-			new Fuse(data, {
-				keys: [
-					"name",
-					"gender",
-					"nationality",
-					"class",
-					"license_number",
-					"class_code",
-					"start_date",
-					"end_date",
-				],
-				threshold: 0.3,
-			}),
+			new Fuse(
+				data,
+				{
+					keys: ["name", "license_number", "class_code"],
+					threshold: 0.3,
+				},
+				Fuse.parseIndex(data_index as never)
+			),
 		[]
 	);
 
 	useEffect(() => {
-		if (search.trim() === "") {
+		if (searchDebounceValue.trim() === "") {
 			setResults(data);
 		} else {
-			const res = fuse.search(search).map((result) => result.item);
+			const res = fuse.search(searchDebounceValue).map((result) => result.item);
 			setResults(res);
 		}
-	}, [search, fuse]);
+	}, [searchDebounceValue, fuse]);
 
 	return (
 		<div className="p-6 space-y-4">
 			<h1 className="text-2xl font-bold w-full text-center">
-				Học Viên OTO 3T - Cập nhật:{" "}
+				Học Viên OTO 3T - Cập nhật:
 				{new Date(updated_at).toLocaleDateString("vi-VN")}
+			</h1>
+			<h1 className="text-lg font-bold w-full text-center">
+				Author:{" "}
+				<a
+					className="text-blue-500"
+					href="https://www.facebook.com/Kudou.D.Sterain/"
+				>
+					@hotrungnhan
+				</a>
 			</h1>
 			<Input
 				placeholder="Search bởi tên, mã khoá học"
@@ -71,52 +97,7 @@ export default function App() {
 
 			<Card>
 				<CardContent className="overflow-auto p-4">
-					<Table>
-						<TableHeader>
-							<TableRow>
-								<TableHead>Name</TableHead>
-								<TableHead>Gender</TableHead>
-								<TableHead>Nationality</TableHead>
-								<TableHead>Class</TableHead>
-								<TableHead>License Number</TableHead>
-								<TableHead>Class Code</TableHead>
-								<TableHead>Start Date</TableHead>
-								<TableHead>End Date</TableHead>
-							</TableRow>
-						</TableHeader>
-						<div ref={parentRef} className="overflow-auto w-full h-[500px]">
-							<TableBody
-								style={{
-									height: rowVirtualizer.getTotalSize(),
-									position: "relative",
-								}}
-							>
-								{rowVirtualizer.getVirtualItems().map((virtualRow) => {
-									const row = results[virtualRow.index];
-									return (
-										<TableRow
-											key={virtualRow.key}
-											className="w-full absolute left-0 top-0"
-											style={{
-												transform: `translateY(${virtualRow.start}px)`,
-												height: `${virtualRow.size}px`,
-											}}
-											ref={(node) => rowVirtualizer.measureElement(node)}
-										>
-											<TableCell>{row.name}</TableCell>
-											<TableCell>{row.gender}</TableCell>
-											<TableCell>{row.nationality}</TableCell>
-											<TableCell>{row.class}</TableCell>
-											<TableCell>{row.license_number}</TableCell>
-											<TableCell>{row.class_code}</TableCell>
-											<TableCell>{row.start_date}</TableCell>
-											<TableCell>{row.end_date}</TableCell>
-										</TableRow>
-									);
-								})}
-							</TableBody>
-						</div>
-					</Table>
+					<DataTable columns={columns} data={results} height="500px" />
 				</CardContent>
 			</Card>
 		</div>
