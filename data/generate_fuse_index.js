@@ -16,7 +16,7 @@ const csvContent = readFileSync(csvFilePath, 'utf-8');
 const data = csvParse(csvContent);
 
 // Generate Fuse.js index
-const fuseIndex = fuse.createIndex(["name"], data);
+const fuseIndex = fuse.createIndex(["name", "class_code"], data);
 
 // Write the index to a file
 writeFileSync(jsonIndexPath, JSON.stringify(fuseIndex.toJSON()));
