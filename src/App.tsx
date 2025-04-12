@@ -12,37 +12,42 @@ import data from "@/assets/output.csv";
 
 const columns: ColumnDef<(typeof data)[0]>[] = [
 	{
-		header: "Name",
+		header: "Số Thứ Tự",
+		accessorKey: "no",
+		size: 80,
+	},
+	{
+		header: "Họ Và Tên",
 		accessorKey: "name",
 		minSize: 300,
 	},
 	{
-		header: "Gender",
+		header: "Giới Tính",
 		accessorKey: "gender",
 		maxSize: 80,
 	},
 	{
-		header: "Nationality",
+		header: "Quốc Tịch",
 		accessorKey: "nationality",
 	},
 	{
-		header: "Class",
+		header: "Hạng ",
 		accessorKey: "class",
 	},
 	{
-		header: "License Number",
+		header: "Số GPLX",
 		accessorKey: "license_number",
 	},
 	{
-		header: "Class Code",
+		header: "Mã Khoá Học",
 		accessorKey: "class_code",
 	},
 	{
-		header: "Start Date",
+		header: "Ngày Khai Giảng",
 		accessorKey: "start_date",
 	},
 	{
-		header: "End Date",
+		header: "Ngày Bế Giảng",
 		accessorKey: "end_date",
 	},
 ];
